@@ -105,13 +105,13 @@ public class HierarchyViewer {
      * @param rootNode the ViewNode at which to begin the traversal
      * @return view with the specified ID, or {@code null} if no view found.
      */
-    public ViewNode findViewByIndex(String id, int index) {
+    public ViewNode findViewByIndex(String name, int index) {
         ViewNode rootNode = DeviceBridge.loadWindowData(
                 new Window(mDevice, "", 0xffffffff));
         if (rootNode == null) {
             throw new RuntimeException("Could not dump view");
         }
-        return findViewByIndex(id, index, rootNode);
+        return findViewByIndex(name, index, rootNode);
     }
 
     /**
@@ -122,13 +122,13 @@ public class HierarchyViewer {
      * @return view with the specified Index, or {@code null} if no view found.
      */
 
-    public ViewNode findViewByIndex(String id, int index, ViewNode rootNode) {
-        if (index == rootNode.index && rootNode.id.equals(id)) {
+    public ViewNode findViewByIndex(String name, int index, ViewNode rootNode) {
+        if (index == rootNode.index && rootNode.name.equals(name)) {
             return rootNode;
         }
 
         for (ViewNode child : rootNode.children) {
-            ViewNode found = findViewByIndex(id, index, child);
+            ViewNode found = findViewByIndex(name, index, child);
             if (found != null) {
                 return found;
             }
@@ -136,6 +136,44 @@ public class HierarchyViewer {
         return null;
     }
 
+    /**
+     * Find a view by Text, starting from the given root node
+     * @param name Name of the view you're looking for
+     * @param text Text of the view you're looking for
+     * @param rootNode the ViewNode at which to begin the traversal
+     * @return view with the specified ID, or {@code null} if no view found.
+     */
+    public ViewNode findViewByText(String name, String text) {
+        ViewNode rootNode = DeviceBridge.loadWindowData(
+                new Window(mDevice, "", 0xffffffff));
+        if (rootNode == null) {
+            throw new RuntimeException("Could not dump view");
+        }
+        return findViewByText(name, text, rootNode);
+    }
+
+    /**
+     * Find a view by Index, starting from the given root node
+     * @param name Name of the view you're looking for
+     * @param text Text of the view you're looking for
+     * @param rootNode the ViewNode at which to begin the traversal
+     * @return view with the specified Index, or {@code null} if no view found.
+     */
+
+    public ViewNode findViewByText(String name, String text, ViewNode rootNode) {
+        if (rootNode.text.equals(text) && rootNode.name.equals(name)) {
+            return rootNode;
+        }
+
+        for (ViewNode child : rootNode.children) {
+            ViewNode found = findViewByText(name, text, child);
+            if (found != null) {
+                return found;
+            }
+        }
+        return null;
+    }
+    
     /**
      * Gets the window that currently receives the focus.
      *

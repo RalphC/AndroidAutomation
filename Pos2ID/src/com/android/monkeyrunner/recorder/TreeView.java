@@ -34,6 +34,7 @@ public class TreeView {
 	public ViewNode SearchId(MouseEvent event) {
 		int posX = (int)(event.getX() * scalex);
 		int posY = (int)(event.getY() * scaley);
+		Log.e("TreeViewSearch", "input x=" + posX + ", y=" + posY);
 		IDevice device = DeviceSelectionModel.getModel().getSelectedDevice();
 		ViewNode rootNode = loadWindowData(Window.getFocusedWindow(device));
 		findViewByPosition(posX, posY, rootNode);
@@ -50,16 +51,26 @@ public class TreeView {
 	
 	
 	private void findViewByPosition(int PosX, int PosY, ViewNode rootNode) {
+		Log.e("TreeViewSearch", "NodeInfo:" + rootNode.name + "@" + rootNode.hashCode + ",x=" + rootNode.left + ",width=" + rootNode.width + ",y=" + rootNode.top + ",height=" + rootNode.height);
 		if (!isInside(rootNode, PosX, PosY)) {
+			Log.e("TreeViewSearch", "Not inside");
 			return;
 		}
+		
+		if (rootNode.width <= minX && rootNode.height <= minY) {
+			Log.e("TreeViewSearch", "New Baseline Node Set");
+			minX = rootNode.width;
+			minY = rootNode.height;
+			result = rootNode;
+		}
+		
 		if (rootNode.children.isEmpty()) {
-			if (rootNode.width < minX && rootNode.height < minY) {
-				result = rootNode;
-			}
+			Log.e("TreeViewSearch", "Leaf Node");
 			return;
 		}
+		
 		for (ViewNode node : rootNode.children) {
+			Log.e("TreeViewSearch", "Searching node" + node.hashCode + " of node" + rootNode.name + "@" + rootNode.hashCode);
 			findViewByPosition(PosX, PosY, node);
 		}
 		return;
@@ -75,6 +86,7 @@ public class TreeView {
             int currentDepth = -1;
             String line;
             while ((line = in.readLine()) != null) {
+            	Log.e("TreeViewFullDump", line);
                 if ("DONE.".equalsIgnoreCase(line)) {
                     break;
                 }

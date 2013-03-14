@@ -18,6 +18,7 @@ package com.android.monkeyrunner.recorder;
 import com.android.hierarchyviewerlib.HierarchyViewerDirector;
 import com.android.hierarchyviewerlib.actions.ImageAction;
 import com.android.hierarchyviewerlib.actions.LoadViewHierarchyAction;
+import com.android.hierarchyviewerlib.device.ViewNode;
 import com.android.hierarchyviewerlib.models.DeviceSelectionModel;
 import com.android.hierarchyviewerlib.models.DeviceSelectionModel.IWindowChangeListener;
 import com.android.monkeyrunner.MonkeyDevice;
@@ -102,6 +103,9 @@ public class MonkeyRecorderFrame extends JFrame {
             refreshDisplay();  //  @jve:decl-index=0:
         }
     });
+    
+    private double scalex;
+    private double scaley;
 
     /**
      * This is the default constructor
@@ -139,6 +143,10 @@ public class MonkeyRecorderFrame extends JFrame {
                 null);
         g.dispose();
 
+        // Since we scaled the image down, our x/y are scaled as well.
+        scalex = ((double) currentImage.getWidth()) / ((double) scaledImage.getWidth());
+        scaley = ((double) currentImage.getHeight()) / ((double) scaledImage.getHeight());
+        
         display.setIcon(new ImageIcon(scaledImage));
 
         pack();
@@ -163,8 +171,8 @@ public class MonkeyRecorderFrame extends JFrame {
             display.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent event) {
-                	TreeView tv = new TreeView();
-                    touch(event, tv.getId(event));
+                	TreeView tv = new TreeView(scaledImage.getWidth(), scaledImage.getHeight(), scalex, scaley);
+                    touch(event, tv.SearchId(event));
                     //touch(event, "");
                 }
             });
@@ -419,28 +427,37 @@ public class MonkeyRecorderFrame extends JFrame {
         return refreshButton;
     }
 
-    private void touch(MouseEvent event, String Id) {
-        int x = event.getX();
-        int y = event.getY();
-
-        // Since we scaled the image down, our x/y are scaled as well.
-        double scalex = ((double) currentImage.getWidth()) / ((double) scaledImage.getWidth());
-        double scaley = ((double) currentImage.getHeight()) / ((double) scaledImage.getHeight());
-
-        x = (int) (x * scalex);
-        y = (int) (y * scaley);
-
-        switch (event.getID()) {
+    private void touch(MouseEvent event, ViewNode node) {
+        int x = (int)(event.getX() * scalex);
+        int y = (int)(event.getY() * scaley);
+        
+        if(node != null) {
+            switch (event.getID()) {
             case MouseEvent.MOUSE_CLICKED:
-                addAction(new TouchAction(x, y, Id, MonkeyDevice.DOWN_AND_UP));
+                addAction(new TouchAction(x, y, node.name, node.index, MonkeyDevice.DOWN_AND_UP));
                 break;
             case MouseEvent.MOUSE_PRESSED:
-                addAction(new TouchAction(x, y, Id, MonkeyDevice.DOWN));
+                addAction(new TouchAction(x, y, node.name, node.index, MonkeyDevice.DOWN));
                 break;
             case MouseEvent.MOUSE_RELEASED:
-                addAction(new TouchAction(x, y, Id, MonkeyDevice.UP));
+                addAction(new TouchAction(x, y, node.name, node.index, MonkeyDevice.UP));
                 break;
+            }
         }
+        else {
+            switch (event.getID()) {
+            case MouseEvent.MOUSE_CLICKED:
+                addAction(new TouchAction(x, y, MonkeyDevice.DOWN_AND_UP));
+                break;
+            case MouseEvent.MOUSE_PRESSED:
+                addAction(new TouchAction(x, y, MonkeyDevice.DOWN));
+                break;
+            case MouseEvent.MOUSE_RELEASED:
+                addAction(new TouchAction(x, y, MonkeyDevice.UP));
+                break;
+            }
+        }
+
     }
 
     public void addAction(Action a) {

@@ -34,20 +34,26 @@ public class TouchAction implements Action {
     private final int x;
     private final int y;
     private final String direction;
-    private final String id;
+    //private final String id;
+    private final String name;
+    private final int index;
 
     public TouchAction(int x, int y, String direction) {
         this.x = x;
         this.y = y;
         this.direction = direction;
-        this.id ="";
+        //this.id ="";
+        this.name = "";
+        this.index = -1;
     }
     
-    public TouchAction(int x, int y, String id, String direction) {
+    public TouchAction(int x, int y, String name, int index, String direction) {
     	this.x = x;
     	this.y = y;
-    	this.id = id;
     	this.direction = direction;
+    	//this.id = "";
+    	this.name = name;
+    	this.index = index;
     }
 
     @Override
@@ -64,9 +70,10 @@ public class TouchAction implements Action {
     @Override
     public String serialize() {
     	String pydict = "";
-    	if(id != "") {
+    	if(name != "") {
             pydict = PyDictUtilBuilder.newBuilder().
-                    add("id", id).
+                    add("name", name).
+                    add("index", index).
                     add("type", direction).build();
     	}
     	else {

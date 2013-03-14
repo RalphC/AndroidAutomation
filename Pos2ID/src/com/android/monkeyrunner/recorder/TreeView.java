@@ -16,54 +16,62 @@ import com.android.hierarchyviewerlib.device.DeviceBridge.ViewServerInfo;
 import com.android.hierarchyviewerlib.models.DeviceSelectionModel;
 
 public class TreeView {
-
-	public TreeView() {
+	private int minX;
+	private int minY;
+	private double scalex;
+	private double scaley;
+	private ViewNode result;
+	
+	public TreeView(int Width, int Height, double scalex, double scaley) {
 	    HierarchyViewerDirector.getDirector().loadViewHierarchy();
+	    this.minX = Width;
+	    this.minY = Height;
+	    this.scalex = scalex;
+	    this.scaley = scaley;
+	    this.result = null;
 	}
 	
-	public String getId(MouseEvent event) {
-		int posX = event.getX();
-		int posY = event.getY();
-		return SearchId(posX, posY);
-		
-	}
-	
-	private String SearchId(int PosX, int PosY) {
-		int minY = 1024;
-		int minX = 1024;
-		String CurrentId = "";
-		
+	public ViewNode SearchId(MouseEvent event) {
+		int posX = (int)(event.getX() * scalex);
+		int posY = (int)(event.getY() * scaley);
 		IDevice device = DeviceSelectionModel.getModel().getSelectedDevice();
-		
-		HashMap ViewNodeMap = loadWindowData(Window.getFocusedWindow(device));
-		Iterator it = ViewNodeMap.keySet().iterator();
-		while(it.hasNext()){
-			ViewNode node = (ViewNode) it.next();
-			if(node.top < PosY && node.left < PosX){
-				if((node.top + node.height) > PosY && (node.left + node.width) > PosX) {
-					if((PosY - node.top) < minY && (PosX - node.left) < minX) {
-						minY = PosY - node.top;
-						minX = PosX - node.left;
-						CurrentId = node.id;
-					}
-				}
-			}
-		}
-		
-		return CurrentId;
-		
+		ViewNode rootNode = loadWindowData(Window.getFocusedWindow(device));
+		findViewByPosition(posX, posY, rootNode);
+		return result;
+	}
+	
+	private boolean isInside(ViewNode node, int PosX, int PosY) {
+		PosX = PosX - node.left;
+		if (PosX < 0 ) return false;
+		PosY = PosY - node.top;
+		if (PosY < 0) return false;
+		return (PosX < node.width) && (PosY < node.height);
 	}
 	
 	
-    private HashMap loadWindowData(Window window) {
+	private void findViewByPosition(int PosX, int PosY, ViewNode rootNode) {
+		if (!isInside(rootNode, PosX, PosY)) {
+			return;
+		}
+		if (rootNode.children.isEmpty()) {
+			if (rootNode.width < minX && rootNode.height < minY) {
+				result = rootNode;
+			}
+			return;
+		}
+		for (ViewNode node : rootNode.children) {
+			findViewByPosition(PosX, PosY, node);
+		}
+		return;
+	}
+	
+    private ViewNode loadWindowData(Window window) {
         DeviceConnection connection = null;
-        HashMap ViewNodeMap = new HashMap();
         try {
             connection = new DeviceConnection(window.getDevice());
             connection.sendCommand("DUMP " + window.encode()); //$NON-NLS-1$
             BufferedReader in = connection.getInputStream();
             ViewNode currentNode = null;
-            
             int currentDepth = -1;
             String line;
             while ((line = in.readLine()) != null) {
@@ -79,10 +87,15 @@ public class TreeView {
                     currentDepth--;
                 }
                 currentNode = new ViewNode(window, currentNode, line.substring(depth));
-                currentDepth = depth;
-                ViewNodeMap.put(currentNode, currentNode.id);
-                
+                currentDepth = depth;                
             }
+            if (currentNode == null) {
+                return null;
+            }
+            while (currentNode.parent != null) {
+                currentNode = currentNode.parent;
+            }
+            return currentNode;
         } catch (Exception e) {
             Log.e("TreeViewer", "Unable to load window data for window " + window.getTitle() + " on device "
                     + window.getDevice());
@@ -92,7 +105,7 @@ public class TreeView {
                 connection.close();
             }
         }
-        return ViewNodeMap;
+        return null;
     }
 	
 }

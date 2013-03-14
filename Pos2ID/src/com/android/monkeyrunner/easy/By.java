@@ -47,10 +47,12 @@ public class By extends PyObject implements ClassDictInit {
         JythonUtils.convertDocAnnotationsForClass(By.class, dict);
     }
 
-    private String id;
+    private String name;
+    private int index;
 
-    By(String id) {
-        this.id = id;
+    By(String name, int index) {
+        this.name = name;
+        this.index = index;
     }
 
     @MonkeyRunnerExported(doc = "Select an object by id.",
@@ -60,16 +62,17 @@ public class By extends PyObject implements ClassDictInit {
         ArgParser ap = JythonUtils.createArgParser(args, kws);
         Preconditions.checkNotNull(ap);
 
-        String id = ap.getString(0);
-        return new By(id);
+        String name = ap.getString(0);
+        int index = ap.getInt(1);
+        return new By(name, index);
     }
 
-    public static By id(String id) {
-        return new By(id);
+    public static By id(String name, int index) {
+        return new By(name, index);
     }
 
     public ViewNode findView(HierarchyViewer viewer) {
-        return viewer.findViewById(id);
+        return viewer.findViewById(name, index);
     }
 
 

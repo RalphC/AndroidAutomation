@@ -135,44 +135,6 @@ public class HierarchyViewer {
         }
         return null;
     }
-
-    /**
-     * Find a view by Text, starting from the given root node
-     * @param name Name of the view you're looking for
-     * @param text Text of the view you're looking for
-     * @param rootNode the ViewNode at which to begin the traversal
-     * @return view with the specified ID, or {@code null} if no view found.
-     */
-    public ViewNode findViewByText(String name, String text) {
-        ViewNode rootNode = DeviceBridge.loadWindowData(
-                new Window(mDevice, "", 0xffffffff));
-        if (rootNode == null) {
-            throw new RuntimeException("Could not dump view");
-        }
-        return findViewByText(name, text, rootNode);
-    }
-
-    /**
-     * Find a view by Index, starting from the given root node
-     * @param name Name of the view you're looking for
-     * @param text Text of the view you're looking for
-     * @param rootNode the ViewNode at which to begin the traversal
-     * @return view with the specified Index, or {@code null} if no view found.
-     */
-
-    public ViewNode findViewByText(String name, String text, ViewNode rootNode) {
-        if (rootNode.text.equals(text) && rootNode.name.equals(name)) {
-            return rootNode;
-        }
-
-        for (ViewNode child : rootNode.children) {
-            ViewNode found = findViewByText(name, text, child);
-            if (found != null) {
-                return found;
-            }
-        }
-        return null;
-    }
     
     /**
      * Gets the window that currently receives the focus.

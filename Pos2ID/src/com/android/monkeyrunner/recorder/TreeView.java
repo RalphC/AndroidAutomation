@@ -18,6 +18,7 @@ import com.android.hierarchyviewerlib.models.DeviceSelectionModel;
 public class TreeView {
 	private int minX;
 	private int minY;
+	private int minSqr;
 	private double scalex;
 	private double scaley;
 	private ViewNode result;
@@ -26,6 +27,7 @@ public class TreeView {
 	    HierarchyViewerDirector.getDirector().loadViewHierarchy();
 	    this.minX = Width;
 	    this.minY = Height;
+	    this.minSqr = minX * minY;
 	    this.scalex = scalex;
 	    this.scaley = scaley;
 	    this.result = null;
@@ -57,10 +59,11 @@ public class TreeView {
 			return;
 		}
 		
-		if (rootNode.width <= minX && rootNode.height <= minY) {
+		if (rootNode.width * rootNode.height < minSqr) {
 			Log.e("TreeViewSearch", "New Baseline Node Set");
 			minX = rootNode.width;
 			minY = rootNode.height;
+			minSqr = rootNode.width * rootNode.height;
 			result = rootNode;
 		}
 		

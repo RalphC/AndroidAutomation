@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 
 import com.android.chimpchat.core.TouchPressType;
 import com.android.chimpchat.hierarchyviewer.HierarchyViewer;
+import com.android.ddmlib.Log;
 import com.android.hierarchyviewerlib.device.ViewNode;
 import com.android.monkeyrunner.JythonUtils;
 import com.android.monkeyrunner.MonkeyDevice;
@@ -223,6 +224,7 @@ public class EasyMonkeyDevice extends PyObject implements ClassDictInit {
         }
 
         Point p = HierarchyViewer.getAbsoluteCenterOfView(node);
+        Log.e("EasyMonkeyDevice", "touch x=" + p.x + ",y=" + p.y);
         return p;
     }
 

@@ -72,8 +72,7 @@ public class By extends PyObject implements ClassDictInit {
     }
 
     public ViewNode findView(HierarchyViewer viewer) {
-        //return viewer.findViewById(name, index);
-    	return viewer.findViewById(name);
+        return viewer.findViewByIndex(name, index);
     }
 
 

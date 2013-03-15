@@ -133,7 +133,7 @@ public class ViewNode {
         data = data.substring(delimIndex + 1);
         delimIndex = data.indexOf(' ');
         hashCode = data.substring(0, delimIndex);
-        loadProperties(data.substring(delimIndex + 1).trim());
+        loadProperties(data.substring(delimIndex + 1).trim(), parent);
 
         measureTime = -1;
         layoutTime = -1;
@@ -159,7 +159,7 @@ public class ViewNode {
         }
     }
 
-    private void loadProperties(String data) {
+    private void loadProperties(String data, ViewNode parent) {
         int start = 0;
         boolean stop;
         do {
@@ -190,10 +190,15 @@ public class ViewNode {
 
         id = namedProperties.get("mID").value; //$NON-NLS-1$
 
-        left =
- namedProperties.containsKey("mLeft") ? getInt("mLeft", 0) : getInt("layout:mLeft", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                        0);
-        top = namedProperties.containsKey("mTop") ? getInt("mTop", 0) : getInt("layout:mTop", 0); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        if(parent != null) {
+        	left = namedProperties.containsKey("mLeft") ? getInt("mLeft", 0) : getInt("layout:mLeft", 0) + parent.left;
+        	top = namedProperties.containsKey("mTop") ? getInt("mTop", 0) : getInt("layout:mTop", 0) + parent.top;
+        }
+        else {
+        	left = namedProperties.containsKey("mLeft") ? getInt("mLeft", 0) : getInt("layout:mLeft", 0);
+        	top = namedProperties.containsKey("mTop") ? getInt("mTop", 0) : getInt("layout:mTop", 0);
+        }
+        
         width =
                 namedProperties.containsKey("getWidth()") ? getInt("getWidth()", 0) : getInt( //$NON-NLS-1$ //$NON-NLS-2$
                         "layout:getWidth()", 0); //$NON-NLS-1$

@@ -176,9 +176,11 @@ public class HierarchyViewer {
      * @return absolute x/y center of the specified view node.
      */
     public static Point getAbsoluteCenterOfView(ViewNode node) {
-        Point point = getAbsolutePositionOfView(node);
-        return new Point(
-                point.x + (node.width / 2), point.y + (node.height / 2));
+        //Point point = getAbsolutePositionOfView(node);
+        //return new Point(
+        //        point.x + (node.width / 2), point.y + (node.height / 2));
+    	return new Point(
+    			node.left + (node.width / 2), node.top + (node.height / 2));
     }
 
     /**

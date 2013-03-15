@@ -2,8 +2,6 @@ package com.android.monkeyrunner.recorder;
 
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
-import java.util.HashMap;
-import java.util.Iterator;
 
 import com.android.ddmlib.IDevice;
 import com.android.ddmlib.Log;
@@ -54,27 +52,19 @@ public class TreeView {
 	
 	private void findViewByPosition(int PosX, int PosY, ViewNode rootNode) {
 		Log.e("TreeViewSearch", "NodeInfo:" + rootNode.name + "@" + rootNode.hashCode + ",x=" + rootNode.left + ",width=" + rootNode.width + ",y=" + rootNode.top + ",height=" + rootNode.height);
-		if (!isInside(rootNode, PosX, PosY)) {
-			Log.e("TreeViewSearch", "Not inside");
-			return;
+		if (isInside(rootNode, PosX, PosY)) {
+			if (rootNode.width * rootNode.height < minSqr) {
+				minSqr = rootNode.width * rootNode.height;
+				result = rootNode;
+				Log.e("TreeViewSearch", "New Baseline Node Set, minSqr=" + minSqr);
+			}
 		}
 		
-		if (rootNode.width * rootNode.height < minSqr) {
-			Log.e("TreeViewSearch", "New Baseline Node Set");
-			minX = rootNode.width;
-			minY = rootNode.height;
-			minSqr = rootNode.width * rootNode.height;
-			result = rootNode;
-		}
-		
-		if (rootNode.children.isEmpty()) {
-			Log.e("TreeViewSearch", "Leaf Node");
-			return;
-		}
-		
-		for (ViewNode node : rootNode.children) {
-			Log.e("TreeViewSearch", "Searching node" + node.hashCode + " of node" + rootNode.name + "@" + rootNode.hashCode);
-			findViewByPosition(PosX, PosY, node);
+		if (!rootNode.children.isEmpty()) {
+			for (ViewNode node : rootNode.children) {
+				Log.e("TreeViewSearch", "Searching node" + node.hashCode + " of node" + rootNode.name + "@" + rootNode.hashCode);
+				findViewByPosition(PosX, PosY, node);
+			}
 		}
 		return;
 	}
